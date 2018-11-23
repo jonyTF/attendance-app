@@ -28,6 +28,13 @@ class Firebase {
 
     doPasswordUpdate = password =>
         this.auth.currentUser.updatePassword(password);
+
+    doReauthenticateAndRetrieveDataWithCredential = credential =>
+        this.auth.currentUser.reauthenticateAndRetrieveDataWithCredential(credential);
+
+    doCreateCredential = (email, password) => {
+        return (app.auth.EmailAuthProvider.credential(email, password));
+    }
 }
 
 export default Firebase;

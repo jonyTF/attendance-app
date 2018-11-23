@@ -5,6 +5,7 @@ import { compose } from 'recompose';
 import { withStyles } from '@material-ui/core/styles';
 import AccountCircle from '@material-ui/icons/AccountCircleRounded';
 
+import { PasswordForgetLink } from '../PasswordForget';
 import { SignUpLink } from '../SignUp';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
@@ -76,7 +77,7 @@ class SignInFormBase extends Component {
                     <AccountCircle />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Sign in
+                    Log in
                 </Typography>
                 <form className={classes.form} onSubmit={this.onSubmit}>
                     <FormControl margin="normal" fullWidth>
@@ -112,6 +113,8 @@ class SignInFormBase extends Component {
                     Sign in
                     </Button>
 
+                    <PasswordForgetLink />
+                    
                     {this.state.error && <p style={{color:"red"}}>{this.state.error.message}</p>}
                 </form>
             </Paper>

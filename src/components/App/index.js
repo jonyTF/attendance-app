@@ -10,6 +10,7 @@ import AdminPage from '../Admin';
 import AccountPage from '../Account';
 import PasswordForgetPage from '../PasswordForget';
 
+import { withAuthentication } from '../Session';
 import * as ROUTES from '../../constants/routes';
 import { CssBaseline } from '@material-ui/core';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -31,7 +32,7 @@ const styles = theme => ({
   },
 });
 
-const App = (props) => {
+const App = props => {
   const { classes } = props;
 
   return (
@@ -53,4 +54,4 @@ const App = (props) => {
   );
 };
 
-export default withStyles(styles)(App);
+export default withAuthentication(withStyles(styles)(App));
