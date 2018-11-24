@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import NavBar from '../NavBar';
@@ -32,26 +32,47 @@ const styles = theme => ({
   },
 });
 
-const App = props => {
-  const { classes } = props;
+class App extends Component {
+  constructor(props) {
+    super(props);
 
-  return (
-    <Router>
-      <div>
-        <NavBar />
-        <main className={classes.main}>
-          <CssBaseline />
-          <Route exact path={ROUTES.LANDING} component={LandingPage} />
-          <Route exact path={ROUTES.SIGN_UP} component={SignUpPage} />
-          <Route exact path={ROUTES.SIGN_IN} component={SignInPage} />
-          <Route exact path={ROUTES.HOME} component={HomePage} />
-          <Route exact path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
-          <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
-          <Route exact path={ROUTES.ADMIN} component={AdminPage} />
-        </main>
-      </div>
-    </Router>
-  );
-};
+    this.state = {
+      isLoading: true,
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.state.isLoading) {
+      this.setState({ isLoading: false });
+    }
+  }
+
+  render() {
+    // TODO: Instead of displaying null, display a loading screen
+    if (this.state.isLoading) {
+      return null;
+    }
+
+    const { classes } = this.props;
+
+    return (
+      <Router>
+        <div>
+          <NavBar />
+          <main className={classes.main}>
+            <CssBaseline />
+            <Route exact path={ROUTES.LANDING} component={LandingPage} />
+            <Route exact path={ROUTES.SIGN_UP} component={SignUpPage} />
+            <Route exact path={ROUTES.SIGN_IN} component={SignInPage} />
+            <Route exact path={ROUTES.HOME} component={HomePage} />
+            <Route exact path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
+            <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
+            <Route exact path={ROUTES.ADMIN} component={AdminPage} />
+          </main>
+        </div>
+      </Router>
+    );
+    }
+}
 
 export default withAuthentication(withStyles(styles)(App));

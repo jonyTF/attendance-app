@@ -4,6 +4,8 @@ import { compose } from 'recompose';
 import { withStyles } from '@material-ui/core/styles';
 import AccountCircle from '@material-ui/icons/AccountCircleRounded';
 
+import formStyles from '../../styles/formStyles';
+import { withAuthorization } from '../Session';
 import { Link, withRouter } from 'react-router-dom';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
@@ -13,27 +15,6 @@ const SignUpPage = () => (
         <SignUpForm />
     </div>
 );
-
-const styles = theme => ({
-    paper: {
-        marginTop: theme.spacing.unit * 8,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
-    },
-    form: {
-        width: '100%',
-        marginTop: theme.spacing.unit * 2,
-    },
-    submit: {
-        marginTop: theme.spacing.unit * 3,
-    },
-    avatar: {
-        margin: theme.spacing.unit,
-        backgroundColor: theme.palette.secondary.main,
-    },
-}); 
 
 const INITIAL_STATE = {
     firstName: '',
@@ -158,7 +139,7 @@ class SignUpFormBase extends Component {
 const SignUpForm = compose(
     withRouter,
     withFirebase,
-    withStyles(styles)
+    withStyles(formStyles)
 )(SignUpFormBase);
 
 const SignUpLink = () => (
@@ -167,6 +148,8 @@ const SignUpLink = () => (
     </p>
 );
 
-export default SignUpPage;
+const condition = authUser => !authUser;
+
+export default withAuthorization(condition, false)(SignUpPage);
 
 export { SignUpForm, SignUpLink };

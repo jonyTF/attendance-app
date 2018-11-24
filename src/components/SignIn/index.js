@@ -5,6 +5,8 @@ import { compose } from 'recompose';
 import { withStyles } from '@material-ui/core/styles';
 import AccountCircle from '@material-ui/icons/AccountCircleRounded';
 
+import formStyles from '../../styles/formStyles';
+import { withAuthorization } from '../Session';
 import { PasswordForgetLink } from '../PasswordForget';
 import { SignUpLink } from '../SignUp';
 import { withFirebase } from '../Firebase';
@@ -16,27 +18,6 @@ const SignInPage = () => (
         <SignUpLink />
     </div>
 );
-
-const styles = theme => ({
-    paper: {
-        marginTop: theme.spacing.unit * 8,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
-    },
-    form: {
-        width: '100%',
-        marginTop: theme.spacing.unit * 2,
-    },
-    submit: {
-        marginTop: theme.spacing.unit * 3,
-    },
-    avatar: {
-        margin: theme.spacing.unit,
-        backgroundColor: theme.palette.secondary.main,
-    },
-}); 
 
 const INITIAL_STATE = {
     email: '',
@@ -125,9 +106,11 @@ class SignInFormBase extends Component {
 const SignInForm = compose(
     withRouter,
     withFirebase,
-    withStyles(styles)
+    withStyles(formStyles)
 )(SignInFormBase);
 
-export default SignInPage;
+const condition = authUser => !authUser;
+
+export default withAuthorization(condition, false)(SignInPage);
 
 export { SignInForm };
