@@ -1,6 +1,7 @@
 import React from 'react';
 import { withAuthorization } from '../Session';
 
+// TODO: Include a Link to the Create page here
 const HomePage = () => (
     <div>
         <h1>Home</h1>

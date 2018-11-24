@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { Paper, Typography } from '@material-ui/core';
-import withStyles from '@material-ui/core/styles/withStyles';
 import { compose } from 'recompose';
 
+import PaperBase from '../PaperBase';
 import { withFirebase } from '../Firebase';
-import formStyles from '../../styles/formStyles';
 import { withAuth, withAuthorization } from '../Session';
 import PasswordChangeForm from '../PasswordChange';
 
@@ -45,20 +43,14 @@ class AccountInfoBase extends Component {
     }
 
     render() {
-        const { classes } = this.props;
         
         // TODO: display loading icon when it is loading the states
         return (
-            <Paper className={classes.paper}>
-                <Typography component="h1" variant="h5">
-                    Account Info
-                </Typography>
-                <div className={classes.form}>
-                    <span><strong>Name:</strong> {this.state.firstName} {this.state.lastName}</span>
-                    <br />
-                    <span><strong>Email:</strong> {this.state.email}</span>
-                </div>
-            </Paper>
+            <PaperBase title="Account Info">
+                <span><strong>Name:</strong> {this.state.firstName} {this.state.lastName}</span>
+                <br />
+                <span><strong>Email:</strong> {this.state.email}</span>
+            </PaperBase>
         );
         }
 }
@@ -67,11 +59,9 @@ const condition = authUser => !!authUser;
 
 export default withAuthorization(condition)(AccountPage);
 
-// TODO: Make it not formStyles in the future. Have a separate style file
 const AccountInfo = compose(
     withAuth,
     withFirebase,
-    withStyles(formStyles)
 )(AccountInfoBase);
 
 export { AccountInfo };

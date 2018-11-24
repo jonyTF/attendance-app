@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Button, FormControl, Paper, TextField, Typography } from '@material-ui/core';
-import withStyles from '@material-ui/core/styles/withStyles';
+import { FormControl, TextField } from '@material-ui/core';
 import { compose } from 'recompose';
 
-import formStyles from '../../styles/formStyles';
+import PaperBase, { PaperFormBase } from '../PaperBase';
 import { withAuth } from '../Session';
 import { withFirebase } from '../Firebase';
 
@@ -53,14 +52,9 @@ class PasswordChangeFormBase extends Component {
     };
 
     render() {
-        const { classes } = this.props;
-
         return (
-            <Paper className={classes.paper}>
-                <Typography component="h1" variant="h5">
-                    Change Password
-                </Typography>
-                <form className={classes.form} onSubmit={this.onSubmit}>
+            <PaperBase title="Change Password">
+                <PaperFormBase onSubmit={this.onSubmit} submitBtnText="Change Password">
                     <FormControl margin="normal" fullWidth>
                         <TextField 
                             name="password1"
@@ -84,20 +78,11 @@ class PasswordChangeFormBase extends Component {
                             required
                         />
                     </FormControl>
-                    <Button 
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                        className={classes.submit}
-                        fullWidth
-                    >
-                        Change Password
-                    </Button>
+                </PaperFormBase>
 
-                    {this.state.success && <p style={{color: 'green'}}>{this.state.success}</p>}
-                    {this.state.error && <p style={{color: 'red'}}>{this.state.error.message}</p>}
-                </form>
-            </Paper>
+                {this.state.success && <p style={{color: 'green'}}>{this.state.success}</p>}
+                {this.state.error && <p style={{color: 'red'}}>{this.state.error.message}</p>}
+            </PaperBase>
         );
     }
 }
@@ -105,7 +90,6 @@ class PasswordChangeFormBase extends Component {
 const PasswordChangeForm = compose(
     withAuth,
     withFirebase,
-    withStyles(formStyles)
 )(PasswordChangeFormBase);
 
 export default PasswordChangeForm;

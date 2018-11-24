@@ -9,6 +9,8 @@ import SignUpPage from '../SignUp';
 import AdminPage from '../Admin';
 import AccountPage from '../Account';
 import PasswordForgetPage from '../PasswordForget';
+import CreatePage from '../Create';
+import RoomsPage from '../Rooms';
 
 import { withAuthentication } from '../Session';
 import * as ROUTES from '../../constants/routes';
@@ -68,6 +70,8 @@ class App extends Component {
             <Route exact path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
             <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
             <Route exact path={ROUTES.ADMIN} component={AdminPage} />
+            <Route exact path={ROUTES.CREATE} component={CreatePage} />
+            <Route exact path={ROUTES.ROOMS} component={RoomsPage} />
           </main>
         </div>
       </Router>

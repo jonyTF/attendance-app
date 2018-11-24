@@ -1,11 +1,10 @@
-import { Avatar, Typography, Button, Paper, TextField, FormControl } from '@material-ui/core';
+import { TextField, FormControl } from '@material-ui/core';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
-import { withStyles } from '@material-ui/core/styles';
-import AccountCircle from '@material-ui/icons/AccountCircleRounded';
+import AccountCircle from '@material-ui/icons/AccountCircle';
 
-import formStyles from '../../styles/formStyles';
+import PaperBase, { PaperFormBase } from '../PaperBase';
 import { withAuthorization } from '../Session';
 import { PasswordForgetLink } from '../PasswordForget';
 import { SignUpLink } from '../SignUp';
@@ -50,17 +49,9 @@ class SignInFormBase extends Component {
     }
 
     render() {
-        const { classes } = this.props;
-
         return (
-            <Paper className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <AccountCircle />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Log in
-                </Typography>
-                <form className={classes.form} onSubmit={this.onSubmit}>
+            <PaperBase iconComponent={AccountCircle} title="Log in">
+                <PaperFormBase onSubmit={this.onSubmit} submitBtnText="Sign in">
                     <FormControl margin="normal" fullWidth>
                         <TextField
                             name="email"
@@ -84,21 +75,11 @@ class SignInFormBase extends Component {
                             required
                         />
                     </FormControl>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                        className={classes.submit}
-                        fullWidth
-                    >
-                    Sign in
-                    </Button>
+                </PaperFormBase>
 
-                    <PasswordForgetLink />
-                    
-                    {this.state.error && <p style={{color:"red"}}>{this.state.error.message}</p>}
-                </form>
-            </Paper>
+                <PasswordForgetLink />
+                {this.state.error && <p style={{color: 'red'}}>{this.state.error.message}</p>}
+            </PaperBase>
         );
     }
 }
@@ -106,7 +87,6 @@ class SignInFormBase extends Component {
 const SignInForm = compose(
     withRouter,
     withFirebase,
-    withStyles(formStyles)
 )(SignInFormBase);
 
 const condition = authUser => !authUser;

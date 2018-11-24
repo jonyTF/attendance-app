@@ -1,12 +1,12 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { withFirebase } from '../Firebase';
 
-const SignOutButton = ({ firebase }) => (
-    <Button variant="contained" color="secondary" onClick={firebase.doSignOut}>
+const SignOutItem = ({ firebase }) => (
+    <MenuItem onClick={firebase.doSignOut}>
         Sign out
-    </Button>
+    </MenuItem>
 );
 
-export default withFirebase(SignOutButton);
+export default withFirebase(SignOutItem);

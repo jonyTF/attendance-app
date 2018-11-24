@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Avatar, Typography, Button, Paper, TextField, FormControl } from '@material-ui/core';
+import { TextField, FormControl } from '@material-ui/core';
 import { compose } from 'recompose';
-import { withStyles } from '@material-ui/core/styles';
-import AccountCircle from '@material-ui/icons/AccountCircleRounded';
+import AccountCircle from '@material-ui/icons/AccountCircle';
 
-import formStyles from '../../styles/formStyles';
+import PaperBase, { PaperFormBase } from '../PaperBase';
 import { withAuthorization } from '../Session';
 import { Link, withRouter } from 'react-router-dom';
 import { withFirebase } from '../Firebase';
@@ -66,17 +65,10 @@ class SignUpFormBase extends Component {
     }
 
     render() {
-        const { classes } = this.props;
 
         return (
-            <Paper className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <AccountCircle />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Sign up
-                </Typography>
-                <form className={classes.form} onSubmit={this.onSubmit}>
+            <PaperBase iconComponent={AccountCircle} title="Sign up">
+                <PaperFormBase onSubmit={this.onSubmit} submitBtnText="Sign up">
                     <FormControl margin="normal" fullWidth>
                         <TextField
                             name="firstName"
@@ -119,19 +111,10 @@ class SignUpFormBase extends Component {
                             required
                         />
                     </FormControl>
-                    <Button 
-                        color="primary"
-                        variant="contained"
-                        type="submit"
-                        className={classes.submit}
-                        fullWidth
-                    >
-                    Sign Up
-                    </Button>
+                </PaperFormBase>
 
-                    {this.state.error && <p style={{color:"red"}}>{this.state.error.message}</p>}
-                </form>
-            </Paper>
+                {this.state.error && <p style={{color:"red"}}>{this.state.error.message}</p>}
+            </PaperBase>
         );
     }
 }
@@ -139,7 +122,6 @@ class SignUpFormBase extends Component {
 const SignUpForm = compose(
     withRouter,
     withFirebase,
-    withStyles(formStyles)
 )(SignUpFormBase);
 
 const SignUpLink = () => (

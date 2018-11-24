@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, FormControl, Paper, TextField, Typography } from '@material-ui/core';
+import { FormControl, TextField } from '@material-ui/core';
 import { compose } from 'recompose';
-import withStyles from '@material-ui/core/styles/withStyles';
 
-import formStyles from '../../styles/formStyles';
+import PaperBase, { PaperFormBase } from '../PaperBase';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 
@@ -30,8 +29,8 @@ class PasswordForgetFormBase extends Component {
         this.props.firebase
             .doPasswordReset(this.state.email)
             .then(() => {
-                this.setState({ success: 'An email has been sent to ' + this.state.email + ' with instructions to reset your password.'});
                 this.setState({ ...INITIAL_STATE });
+                this.setState({ success: 'An email has been sent to ' + this.state.email + ' with instructions to reset your password.'});
             })
             .catch(error => {
                 this.setState({ success: '' });
@@ -46,14 +45,10 @@ class PasswordForgetFormBase extends Component {
     };
 
     render() {
-        const { classes } = this.props;
 
         return (
-            <Paper className={classes.paper}>
-                <Typography component="h1" variant="h5">
-                    Reset Password
-                </Typography>
-                <form className={classes.form} onSubmit={this.onSubmit}>
+            <PaperBase title="Reset Password">
+                <PaperFormBase onSubmit={this.onSubmit} submitBtnText="Reset Password">
                     <FormControl margin="normal" fullWidth>
                         <TextField 
                             name="email"
@@ -65,20 +60,11 @@ class PasswordForgetFormBase extends Component {
                             required
                         />
                     </FormControl>
-                    <Button 
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                        className={classes.submit}
-                        fullWidth
-                    >
-                        Reset Password
-                    </Button>
+                </PaperFormBase>
 
-                    {this.state.success && <p style={{color: 'green'}}>{this.state.success}</p>}
-                    {this.state.error && <p style={{color: 'red'}}>{this.state.error.message}</p>}
-                </form>
-            </Paper>
+                {this.state.success && <p style={{color: 'green'}}>{this.state.success}</p>}
+                {this.state.error && <p style={{color: 'red'}}>{this.state.error.message}</p>}
+            </PaperBase>
         );
     }
 }
@@ -93,7 +79,6 @@ export default PasswordForgetPage;
 
 const PasswordForgetForm = compose(
     withFirebase,
-    withStyles(formStyles)
 )(PasswordForgetFormBase);
 
 export { PasswordForgetForm, PasswordForgetLink };
