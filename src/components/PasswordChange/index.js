@@ -26,7 +26,8 @@ class PasswordChangeFormBase extends Component {
             this.props.authUser.email,
             this.state.password1
         );
-
+        
+        // TODO: Display loading when submitting password b/c it takes some time
         this.props.firebase
             .doReauthenticateAndRetrieveDataWithCredential(credential)
             .then(() => {

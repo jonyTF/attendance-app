@@ -32,19 +32,53 @@ class CreateFormBase extends Component {
         this.setState({ [event.target.name]: event.target.value });
     };
 
+    generateCode = len => {
+        const randomNum = () => {
+            return Math.trunc(Math.random() * 10);
+        };
+
+        const randomLet = () => {
+            let rand = Math.random()*52;
+            return String.fromCharCode(rand < 26 ? (rand + 65) : (rand-26 + 97));
+        };
+
+        let code = '';
+        for (let i = 0; i < len; i++) {
+            if (Math.random() < .5) {
+                code += randomNum();
+            } else {
+                code += randomLet();
+            }
+        }
+        return code;
+    }
+
     onSubmit = event => {
         const { name, description } = this.state;
+        const code = this.generateCode(6);
 
+        // TODO(Urgent): Make sure class code is not the same as someone else's
         this.props.firebase
             .userRooms(this.props.authUser.uid)
             .push({
-                name,
-                description
+                code,
+                owner: true,
             })
             .then(() => {
-                this.setState({ ...INITIAL_STATE });
-                this.setState({ success: 'Successfully created room.' });
-                this.props.history.push(ROUTES.ROOMS);
+                this.props.firebase.globalRoom(code)
+                    .set({
+                        name,
+                        description,
+                    })
+                    .then(() => {
+                        this.setState({ ...INITIAL_STATE });
+                        this.setState({ success: 'Successfully created room.' });
+                        this.props.history.push(ROUTES.ROOMS);
+                    })
+                    .catch(error => {
+                        this.setState({ success: '' });
+                        this.setState({ error });
+                    });
             })
             .catch((error) => {
                 this.setState({ success: '' });
@@ -55,7 +89,7 @@ class CreateFormBase extends Component {
     };
     
     render() {
-
+        // TODO: Have a limit as to how many rooms one can create
         return (
             <PaperBase title="Create Room">
                 <PaperFormBase onSubmit={this.onSubmit} submitBtnText="Create">

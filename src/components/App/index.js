@@ -6,10 +6,10 @@ import LandingPage from '../Landing';
 import HomePage from '../Home';
 import SignInPage from '../SignIn';
 import SignUpPage from '../SignUp';
-import AdminPage from '../Admin';
 import AccountPage from '../Account';
 import PasswordForgetPage from '../PasswordForget';
 import CreatePage from '../Create';
+import JoinPage from '../Join';
 import RoomsPage from '../Rooms';
 
 import { withAuthentication } from '../Session';
@@ -69,8 +69,8 @@ class App extends Component {
             <Route exact path={ROUTES.HOME} component={HomePage} />
             <Route exact path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
             <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
-            <Route exact path={ROUTES.ADMIN} component={AdminPage} />
             <Route exact path={ROUTES.CREATE} component={CreatePage} />
+            <Route exact path={ROUTES.JOIN} component={JoinPage} />
             <Route exact path={ROUTES.ROOMS} component={RoomsPage} />
           </main>
         </div>

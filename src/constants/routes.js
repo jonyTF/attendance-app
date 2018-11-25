@@ -6,4 +6,5 @@ export const ACCOUNT = '/account';
 export const ADMIN = '/admin';
 export const PASSWORD_FORGET = '/pw-forget';
 export const CREATE = '/create';
+export const JOIN = '/join';
 export const ROOMS = '/rooms';
