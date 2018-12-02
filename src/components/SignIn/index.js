@@ -1,5 +1,6 @@
-import { TextField, FormControl } from '@material-ui/core';
 import React, { Component } from 'react';
+import { Checkbox, TextField, FormControl, FormControlLabel } from '@material-ui/core';
+import { BrowserView, isMobile } from 'react-device-detect';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -21,6 +22,7 @@ const SignInPage = () => (
 const INITIAL_STATE = {
     email: '',
     password: '',
+    remember: isMobile,
     error: null
 };
 
@@ -34,12 +36,23 @@ class SignInFormBase extends Component {
         this.setState({ [event.target.name]: event.target.value });
     }
 
+    onCheck = event => {
+        this.setState({ remember: event.target.checked });
+    }
+
     onSubmit = event => {
         this.props.firebase
-            .doSignInWithEmailAndPassword(this.state.email, this.state.password)
+            .doSetPersistence(this.state.remember)
             .then(() => {
-                this.setState({ ...INITIAL_STATE });
-                this.props.history.push(ROUTES.HOME);
+                this.props.firebase
+                    .doSignInWithEmailAndPassword(this.state.email, this.state.password)
+                    .then(() => {
+                        this.setState({ ...INITIAL_STATE });
+                        this.props.history.push(ROUTES.HOME);
+                    })
+                    .catch(error => {
+                        this.setState({ error });
+                    });
             })
             .catch(error => {
                 this.setState({ error });
@@ -75,6 +88,14 @@ class SignInFormBase extends Component {
                             required
                         />
                     </FormControl>
+                    <BrowserView>
+                        <FormControlLabel
+                            control={
+                                <Checkbox checked={this.state.remember} onChange={this.onCheck} value="remember" />
+                            }
+                            label="Remember password"
+                        />
+                    </BrowserView>
                 </PaperFormBase>
 
                 <PasswordForgetLink />

@@ -40,6 +40,9 @@ class Firebase {
         return (app.auth.EmailAuthProvider.credential(email, password));
     }
 
+    doSetPersistence = (remember) =>
+        this.auth.setPersistence(remember ? app.auth.Auth.Persistence.LOCAL : app.auth.Auth.Persistence.SESSION);
+
     // *** User API ***
 
     user = uid => this.db.ref(`users/${uid}`);
@@ -48,7 +51,9 @@ class Firebase {
 
     userRooms = uid => this.db.ref(`users/${uid}/rooms`);
 
-    globalRoom = code => this.db.ref(`rooms/${code}`); 
+    globalRoom = code => this.db.ref(`rooms/${code}`);
+    
+    globalRoomMembers = code => this.db.ref(`rooms/${code}/members`);
 
     globalRooms = () => this.db.ref('rooms/');
 

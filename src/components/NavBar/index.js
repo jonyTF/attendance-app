@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { AppBar, Button, Divider, IconButton, Toolbar, Typography, Menu, MenuItem } from '@material-ui/core';
-import { Link } from 'react-router-dom';
 import withStyles from '@material-ui/core/styles/withStyles';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import Add from '@material-ui/icons/AddRounded';
+import { withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
 import { AuthUserContext } from '../Session';
 import SignOutItem from '../SignOut';
@@ -19,47 +21,53 @@ const styles = theme => ({
     }
 });
 
+const INITIAL_STATE = {
+    anchorEl_account: null,
+    anchorEl_add: null,
+};
+
 class NavAuthBase extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            anchorEl: null,
-        };
+        this.state = { ...INITIAL_STATE };
     }
     
-    handleAccountMenu = event => {
-        this.setState({ anchorEl: event.currentTarget });
+    handleMenu = (event, name) => {
+        this.setState({ ['anchorEl_' + name] : event.currentTarget });
     }
 
-    handleAccountClose = event => {
-        this.setState({ anchorEl: null });
+    handleClose = () => {
+        this.setState({ ...INITIAL_STATE });
+    }
+
+    gotoPath = (path) => {
+        this.props.history.push(path);
     }
 
     render() {
         const { classes } = this.props;
-        const { anchorEl } = this.state;
-        const open = Boolean(anchorEl);
+        const { anchorEl_account, anchorEl_add } = this.state;
+        const open_account = Boolean(anchorEl_account);
+        const open_add = Boolean(anchorEl_add);
 
         return (
             <div>
                 <AppBar position="static" color="default">
                     <Toolbar>
-                        <Typography className={classes.grow} variant="title" color="inherit">
+                        <Typography className={classes.grow} variant="h6" color="inherit">
                             Attendance App
                         </Typography>
-                        <Link to={ROUTES.CREATE} className={classes.button}>
-                            <Button color="primary" variant="contained">Create</Button>
-                        </Link>
                         <IconButton
-                            onClick={this.handleAccountMenu}
+                            name="add"
                             color="inherit"
+                            className={classes.button}
+                            onClick={(event) => this.handleMenu(event, 'add')}
                         >
-                            <AccountCircle />
+                            <Add />
                         </IconButton>
                         <Menu
-                            id="account_menu"
-                            anchorEl={anchorEl}
+                            anchorEl={anchorEl_add}
                             anchorOrigin={{
                                 vertical: 'top',
                                 horizontal: 'right'
@@ -68,11 +76,35 @@ class NavAuthBase extends Component {
                                 vertical: 'top',
                                 horizontal: 'right'
                             }}
-                            open={open}
-                            onClose={this.handleAccountClose}
+                            open={open_add}
+                            onClose={this.handleClose}
                         >
-                            <Link to={ROUTES.ROOMS} style={{textDecoration: 'none'}}><MenuItem onClick={this.handleAccountClose}>My Rooms</MenuItem></Link>
-                            <Link to={ROUTES.ACCOUNT} style={{textDecoration: 'none'}}><MenuItem onClick={this.handleAccountClose}>My Account</MenuItem></Link>
+                            {/* Placeholder for now...figure out dialog boxes later */}
+                            <MenuItem onClick={() => {this.handleClose(); this.gotoPath(ROUTES.NEW)}}>Create</MenuItem>
+                            <MenuItem onClick={() => {this.handleClose(); this.gotoPath(ROUTES.NEW)}}>Join</MenuItem>
+                        </Menu>
+
+                        <IconButton
+                            onClick={(event) => this.handleMenu(event, 'account')}
+                            color="inherit"
+                        >
+                            <AccountCircle />
+                        </IconButton>
+                        <Menu
+                            anchorEl={anchorEl_account}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right'
+                            }}
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right'
+                            }}
+                            open={open_account}
+                            onClose={this.handleClose}
+                        >
+                            <MenuItem onClick={() => {this.handleClose(); this.gotoPath(ROUTES.ROOMS)}}>My Rooms</MenuItem>
+                            <MenuItem onClick={() => {this.handleClose(); this.gotoPath(ROUTES.ACCOUNT)}}>My Account</MenuItem>
                             <Divider />
                             <SignOutItem />
                         </Menu>
@@ -91,23 +123,26 @@ const NavNoAuthBase = (props) => {
         <div>
             <AppBar position="static" color="default">
                 <Toolbar>
-                    <Typography className={classes.grow} variant="title" color="inherit">
+                    <Typography className={classes.grow} variant="h6" color="inherit">
                         Attendance App
                     </Typography>
-                    <Link to={ROUTES.SIGN_IN} className={classes.button}>
-                        <Button color="primary" variant="outlined">Log in</Button>
-                    </Link>
-                    <Link to={ROUTES.SIGN_UP} className={classes.button}>
-                        <Button color="primary" variant="contained">Sign up</Button>
-                    </Link>
+                    <Button color="primary" className={classes.button} variant="outlined" onClick={() => props.history.push(ROUTES.SIGN_IN)}>Log in</Button>
+                    <Button color="primary" className={classes.button} variant="contained" onClick={() => props.history.push(ROUTES.SIGN_UP)}>Sign up</Button>
                 </Toolbar>
             </AppBar>
         </div>
     );
 };
 
-const NavAuth = withStyles(styles)(NavAuthBase);
-const NavNoAuth = withStyles(styles)(NavNoAuthBase);
+const NavAuth = compose(
+    withRouter, 
+    withStyles(styles)
+)(NavAuthBase);
+
+const NavNoAuth = compose(
+    withRouter,
+    withStyles(styles)
+)(NavNoAuthBase);
 
 const NavBar = ({ authUser }) => {
     

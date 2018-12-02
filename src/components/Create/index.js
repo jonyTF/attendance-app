@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FormControl, TextField } from '@material-ui/core';
+import { /*Dialog, DialogTitle, DialogContent, DialogActions,*/ FormControl, TextField } from '@material-ui/core';
 import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
 
@@ -21,7 +21,7 @@ const INITIAL_STATE = {
     error: '',
 };
 
-class CreateFormBase extends Component {
+class CreateBase extends Component {
     constructor(props) {
         super(props);
 
@@ -71,9 +71,21 @@ class CreateFormBase extends Component {
                         description,
                     })
                     .then(() => {
-                        this.setState({ ...INITIAL_STATE });
-                        this.setState({ success: 'Successfully created room.' });
-                        this.props.history.push(ROUTES.ROOMS);
+                        this.props.firebase.globalRoomMembers(code)
+                            .push({
+                                uid: this.props.authUser.uid,
+                                owner: true,
+                            })
+                            .then(() => {
+                                this.setState({ ...INITIAL_STATE });
+                                //this.setState({ open: false }); // Needed for the dialog box
+                                this.setState({ success: 'Successfully created room.' });
+                                this.props.history.push(ROUTES.ROOMS);
+                            })
+                            .catch(error => {
+                                this.setState({ success: '' });
+                                this.setState({ error });
+                            });
                     })
                     .catch(error => {
                         this.setState({ success: '' });
@@ -90,42 +102,91 @@ class CreateFormBase extends Component {
     
     render() {
         // TODO: Have a limit as to how many rooms one can create
-        return (
-            <PaperBase title="Create Room">
-                <PaperFormBase onSubmit={this.onSubmit} submitBtnText="Create">
-                    <FormControl margin="normal" fullWidth>
-                        <TextField 
-                            name="name"
-                            value={this.state.name}
-                            placeholder="Enter a name"
-                            label="Room name"
-                            onChange={this.onChange}
-                            required
-                        />
-                    </FormControl>
-                    <FormControl margin="normal" fullWidth>
-                        <TextField 
-                            name="description"
-                            value={this.state.description}
-                            placeholder="Enter a description (optional)"
-                            label="Description"
-                            onChange={this.onChange}
-                        />
-                    </FormControl>
-                </PaperFormBase>
 
-                {this.state.success && <p style={{color: 'green'}}>{this.state.success}</p>}
-                {this.state.error && <p style={{color: 'red'}}>{this.state.error.message}</p>}
-            </PaperBase>
+        return (
+            <CreateFormBase onSubmit={this.onSubmit} onChange={this.onChange} state={this.state} />
         );
     }
 }
+
+const CreateFormBase = ({ onSubmit, onChange, state }) => (
+    <PaperBase title="Create Room">
+        <PaperFormBase onSubmit={onSubmit} submitBtnText="Create">
+            <FormControl margin="normal" fullWidth>
+                <TextField 
+                    name="name"
+                    value={state.name}
+                    placeholder="Enter a name"
+                    label="Room name"
+                    onChange={onChange}
+                    required
+                />
+            </FormControl>
+            <FormControl margin="normal" fullWidth>
+                <TextField 
+                    name="description"
+                    value={state.description}
+                    placeholder="Enter a description (optional)"
+                    label="Description"
+                    onChange={onChange}
+                />
+            </FormControl>
+        </PaperFormBase>
+
+        {state.success && <p style={{color: 'green'}}>{state.success}</p>}
+        {state.error && <p style={{color: 'red'}}>{state.error.message}</p>}
+    </PaperBase>
+);
+
+// TODO: Figure out how to control opening and closing of dialog box
+/*class CreateDialogBase extends Component {
+    handleClose = () => {
+        this.setState({ open: false });
+    };
+
+    render() {
+        const { onSubmit, onChange, state } = this.props;
+        this.setState({ open: this.props.open });
+        
+        return (
+            <Dialog>
+                <DialogTitle>Create Room</DialogTitle>
+                <DialogContent>
+                    <TextField 
+                        name="name"
+                        value={state.name}
+                        placeholder="Enter a name"
+                        label="Room name"
+                        onChange={onChange}
+                        required
+                        fullWidth
+                    />
+                    <TextField 
+                        name="description"
+                        value={state.description}
+                        placeholder="Enter a description (optional)"
+                        label="Description"
+                        onChange={onChange}
+                        fullWidth
+                    />
+                    <DialogActions>
+                        <Button onClick={this.handleClose} color="primary">Cancel</Button>
+                        <Button onClick={onSubmit} color="primary">Create</Button>
+                    </DialogActions>
+
+                    {state.success && <p style={{color: 'green'}}>{state.success}</p>}
+                    {state.error && <p style={{color: 'red'}}>{state.error.message}</p>}
+                </DialogContent>
+            </Dialog>
+        );
+    }
+}*/
 
 const CreateForm = compose(
     withRouter,
     withAuth,
     withFirebase,
-)(CreateFormBase);
+)(CreateBase);
 
 const condition = authUser => !!authUser;
 

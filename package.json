@@ -9,6 +9,7 @@
     "dotenv": "^6.1.0",
     "firebase": "^5.5.9",
     "react": "^16.6.3",
+    "react-device-detect": "^1.6.1",
     "react-dom": "^16.6.3",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.1",

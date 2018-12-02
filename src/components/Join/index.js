@@ -44,9 +44,20 @@ class JoinFormBase extends Component {
                         owner: false,
                     })
                     .then(() => {
-                        this.setState({ ...INITIAL_STATE });
-                        this.setState({ success: 'Successfully joined room.' });
-                        this.props.history.push(ROUTES.ROOMS);
+                        this.props.firebase.globalRoomMembers(code)
+                            .push({
+                                uid: this.props.authUser.uid,
+                                owner: false,
+                            })
+                            .then(() => {
+                                this.setState({ ...INITIAL_STATE });
+                                this.setState({ success: 'Successfully joined room.' });
+                                this.props.history.push(ROUTES.ROOMS);
+                            })
+                            .catch(error => {
+                                this.setState({ success: '' });
+                                this.setState({ error });
+                            });
                     })
                     .catch((error) => {
                         this.setState({ success: '' });
