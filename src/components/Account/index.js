@@ -19,8 +19,7 @@ class AccountInfoBase extends Component {
         super(props);
 
         this.state = {
-            firstName: '',
-            lastName: '',
+            name: '',
             email: '',
         };
 
@@ -29,10 +28,9 @@ class AccountInfoBase extends Component {
 
     componentDidMount() {
         this.user.on('value', (snapshot) => {
-            const { email, firstName, lastName } = snapshot.val();
+            const { email, name } = snapshot.val();
             this.setState({ 
-                firstName, 
-                lastName, 
+                name,
                 email
             });
         });
@@ -47,7 +45,7 @@ class AccountInfoBase extends Component {
         // TODO: display loading icon when it is loading the states
         return (
             <PaperBase title="Account Info">
-                <span><strong>Name:</strong> {this.state.firstName} {this.state.lastName}</span>
+                <span><strong>Name:</strong> {this.state.name}</span>
                 <br />
                 <span><strong>Email:</strong> {this.state.email}</span>
             </PaperBase>

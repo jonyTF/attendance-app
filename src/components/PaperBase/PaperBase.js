@@ -31,7 +31,7 @@ const PaperBase = props => {
                 </Avatar>
             }
             {props.title && 
-                <Typography component="h1" variant="h5">
+                <Typography variant="h5">
                     {props.title}
                 </Typography>
             }

@@ -46,11 +46,10 @@ class SignUpFormBase extends Component {
                     .user(authUser.user.uid)
                     .set({
                         email: this.state.email,
-                        firstName: this.state.firstName,
-                        lastName: this.state.lastName,
+                        name: this.state.firstName + ' ' + this.state.lastName,
                     })
                     .then(() => {
-                        this.setState({ ...INITIAL_STATE });
+                        //this.setState({ ...INITIAL_STATE });
                         this.props.history.push(ROUTES.HOME);
                     })
                     .catch((error) => {

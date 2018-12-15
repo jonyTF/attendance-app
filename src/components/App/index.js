@@ -33,6 +33,8 @@ const styles = theme => ({
   },
 });
 
+// TODO: Make so you can edit Account Info (name, etc.)
+// TODO(URGENT): Make so that YOU CAN't JOIN A ROOM TWICE
 class App extends Component {
   constructor(props) {
     super(props);

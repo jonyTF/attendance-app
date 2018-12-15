@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
-import AuthUserContext from './context';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 
@@ -11,7 +10,7 @@ const withAuthorization = (condition, loginOnly=true) => Component => {
     // loginOnly : boolean to check if page requires you to be logged in
 
     class WithAuthorization extends React.Component {
-        componentDidMount() {
+        componentWillMount() {
             this.listener = this.props.firebase.auth.onAuthStateChanged(
                 authUser => {
                     if (!condition(authUser)) {
@@ -29,12 +28,16 @@ const withAuthorization = (condition, loginOnly=true) => Component => {
         }
 
         render() {
-            return (
+            /*return (
                 <AuthUserContext.Consumer>
                     { authUser =>
                         condition(authUser) ? <Component { ...this.props }/> : null
                     }
                 </AuthUserContext.Consumer>
+            );*/
+            
+            return (
+                <Component { ...this.props } />
             );
         }
     }

@@ -126,7 +126,7 @@ const NavNoAuthBase = (props) => {
                     <Typography className={classes.grow} variant="h6" color="inherit">
                         Attendance App
                     </Typography>
-                    <Button color="primary" className={classes.button} variant="outlined" onClick={() => props.history.push(ROUTES.SIGN_IN)}>Log in</Button>
+                    <Button color="primary" className={classes.button} variant="outlined" onClick={() => props.history.push(ROUTES.SIGN_IN)}>Sign in</Button>
                     <Button color="primary" className={classes.button} variant="contained" onClick={() => props.history.push(ROUTES.SIGN_UP)}>Sign up</Button>
                 </Toolbar>
             </AppBar>

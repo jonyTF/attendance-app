@@ -1,6 +1,8 @@
+import firebase from 'firebase';
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
+import { isMobile } from 'react-device-detect';
 
 const config = {
     apiKey: process.env.REACT_APP_API_KEY,
@@ -37,23 +39,48 @@ class Firebase {
         this.auth.currentUser.reauthenticateAndRetrieveDataWithCredential(credential);
 
     doCreateCredential = (email, password) => {
-        return (app.auth.EmailAuthProvider.credential(email, password));
+        return (firebase.auth.EmailAuthProvider.credential(email, password));
     }
 
     doSetPersistence = (remember) =>
-        this.auth.setPersistence(remember ? app.auth.Auth.Persistence.LOCAL : app.auth.Auth.Persistence.SESSION);
+        this.auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION);
+
+    doSignInWithGoogle = () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+        provider.addScope('https://www.googleapis.com/auth/userinfo.email');
+        
+        if (isMobile)
+            return this.auth.signInWithRedirect(provider);
+        return this.auth.signInWithPopup(provider);
+    }
+
+    doGetRedirectResult = () =>
+        this.auth.getRedirectResult();
+
+    doRequestNotificationPermission = () =>
+        this.messaging.requestPermission();
+
+    doGetMessagingToken = () =>
+        this.messaging.getToken();
+
+    messaging = () => this.messaging;
 
     // *** User API ***
 
     user = uid => this.db.ref(`users/${uid}`);
 
     users = () => this.db.ref('users');
+    
+    userRoom = (uid, roomCode) => this.db.ref(`users/${uid}/rooms/${roomCode}`);
 
     userRooms = uid => this.db.ref(`users/${uid}/rooms`);
 
-    globalRoom = code => this.db.ref(`rooms/${code}`);
+    globalRoom = roomCode => this.db.ref(`rooms/${roomCode}`);
     
-    globalRoomMembers = code => this.db.ref(`rooms/${code}/members`);
+    globalRoomMember = (uid, roomCode) => this.db.ref(`rooms/${roomCode}/members/${uid}`);
+
+    globalRoomMembers = roomCode => this.db.ref(`rooms/${roomCode}/members`);
 
     globalRooms = () => this.db.ref('rooms/');
 
