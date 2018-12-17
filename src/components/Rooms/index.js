@@ -24,8 +24,9 @@ const styles = theme => ({
 class RoomsListBase extends Component {
     constructor(props) {
         super(props);
+        
+        this.userRoomsRef = props.firebase.userRooms(props.authUser.uid);
 
-        this.rootRef = this.props.firebase.root();
         this.state = {
             ownedRooms: [],
             rooms: [],
@@ -34,48 +35,60 @@ class RoomsListBase extends Component {
     }
 
     componentDidMount() {
-        this.rootRef.on('value', snapshot => {
-            let users = snapshot.val().users;
-            let user = users[this.props.authUser.uid];
-            let userRooms = user.rooms;
-            let globalRooms = snapshot.val().rooms;
-            
+        // TODO: Change this so that all the members are rendered in a separate component
+        this.userRoomsRef.on('value', snapshot => {
+            let userRooms = snapshot.val();
+
             let ownedRooms = [];
             let rooms = [];
             let openState = [];
             let id = 0;
-            for (let room in userRooms) {
-                const code = userRooms[room].code;
-                
-                let members = [];
-                for (let member in globalRooms[code].members) {
-                    let m = globalRooms[code].members[member];
-                    let u = users[m.uid];
-                    members.push({
-                        uid: m.uid,
-                        firstName: u.firstName,
-                        lastName: u.lastName,
-                        owner: m.owner,
-                    });
-                }
 
-                let newList = userRooms[room].owner ? ownedRooms : rooms;
-                newList.push({
-                    id: id,
-                    name: globalRooms[code].name,
-                    description: globalRooms[code].description,
-                    code: code,
-                    members: members,
+            for (let roomCode in userRooms) {
+                let list = userRooms[roomCode].owner ? ownedRooms : rooms;
+                list.push({
+                    code: roomCode, 
+                    id: id
                 });
+
                 openState.push(false);
                 id++;
             }
             this.setState({ ownedRooms, rooms, openState });
         });
+
+        /*
+
+        // TODO: Make this apply universally to the whole app (e.g. put it in the App index.js)
+        this.props.firebase.messaging.onTokenRefresh(() => {
+            console.log('Token was refreshed!');
+        }).catch(error => {
+            console.log('unable to retrieve refreshed token: ', error);
+        });
+
+        this.props.firebase
+            .doGetMessagingToken()
+            .then((token) => {
+                if (token) {
+
+                } else {
+                    this.props.firebase
+                        .doRequestNotificationPermission()
+                        .then(() => {
+                            console.log('Got notification permission!');
+                        }).catch((error) => {
+                            console.log('Failed to get notification permission: ', error);
+                        });
+                }
+            }).catch(error => {
+                console.log('Failed to retrieve token: ', error);
+            });
+
+        */
     }
 
     componentWillUnmount() {
-        this.rootRef.off();
+        this.userRoomsRef.off();
     }
     
     onClick = (event, id) => {
@@ -99,12 +112,27 @@ class RoomsListBase extends Component {
             <div>
                 <h2>Rooms I own</h2>
                 {this.state.ownedRooms.length > 0
-                    ? <RoomsListComponent isOwner={true} takeAttendance={this.takeAttendance} openState={this.state.openState} rooms={this.state.ownedRooms} onClick={this.onClick} classes={classes} />
+                    ? <RoomsListComponent 
+                        isOwner={true} 
+                        takeAttendance={this.takeAttendance} 
+                        openState={this.state.openState} 
+                        rooms={this.state.ownedRooms} 
+                        onClick={this.onClick} 
+                        classes={classes} 
+                        firebase={this.props.firebase} 
+                    />
                     : <div>You have not created any rooms!</div>
                 }
                 <h2>Rooms I am in</h2>
                 {this.state.rooms.length > 0
-                    ? <RoomsListComponent isOwner={false} openState={this.state.openState} rooms={this.state.rooms} onClick={this.onClick} classes={classes} />
+                    ? <RoomsListComponent 
+                        isOwner={false} 
+                        openState={this.state.openState} 
+                        rooms={this.state.rooms}
+                        onClick={this.onClick}
+                        classes={classes} 
+                        firebase={this.props.firebase}
+                    />
                     : <div>You have not joined any rooms!</div>
                 }
             </div>
@@ -114,17 +142,64 @@ class RoomsListBase extends Component {
 
 // TODO: Have options for each group (delete, display code in big dialog box, etc.)
 // TODO: Make it so you can change room settings (change name, remove members, delete room, unjoin room, etc.)
-const RoomsListComponent = ({ classes, rooms, onClick, openState, isOwner, takeAttendance }) => (
-    <List className={classes.root}>
-        {rooms.map((room) => (
-            <div key={room.id}>
-                <ListItem button onClick={(event) => onClick(event, room.id)}>
+class RoomsListComponent extends Component {
+
+    render() {
+        const { classes, rooms, onClick, openState, isOwner, takeAttendance } = this.props;
+        return (
+            <List className={classes.root}>
+                {rooms.map((room) => (
+                    <div key={room.id}>
+                        <RoomListItem 
+                            onClick={onClick} 
+                            room={room} 
+                            openState={openState} 
+                            isOwner={isOwner} 
+                            takeAttendance={takeAttendance} 
+                            firebase={this.props.firebase}
+                        />
+                    </div>
+                ))}
+            </List>
+        );
+    }
+}
+
+class RoomListItem extends Component {
+    constructor(props) {
+        super(props);
+
+        this.roomRef = this.props.firebase.globalRoom(this.props.room.code);
+
+        this.state = {
+            roomData: {},
+        };
+    }
+
+    componentDidMount() {
+        this.roomRef.on('value', snapshot => {
+            let roomData = snapshot.val();
+            this.setState({ roomData });
+        });
+    }
+
+    componentWillUnmount() {
+        this.roomRef.off();
+    }
+
+    render() {
+        const { onClick, room, openState, isOwner, takeAttendance } = this.props;
+        const { roomData } = this.state;
+
+        return (
+            <div>
+                <ListItem button onClick={event => onClick(event, room.id)}>
                     <ListItemText
-                        primary={room.name}
-                        secondary={room.description}
+                        primary={roomData.name}
+                        secondary={roomData.description}
                     />
                     <ListItemText
-                        primary={<strong>{room.code}</strong>}
+                        primary={<strong style={{fontFamily: 'Courier New, Courier, monospace'}}>{room.code}</strong>}
                     />
                     {openState[room.id] ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
@@ -138,19 +213,53 @@ const RoomsListComponent = ({ classes, rooms, onClick, openState, isOwner, takeA
                             : null
                         }
                         <ListItem>
+                            <MemberListItemText owner={true} uid={roomData.owner} firebase={this.props.firebase} />
+                        </ListItem>
+                        <ListItem>
                             <ListItemText inset primary="Members:" />
                         </ListItem>
-                        {room.members.map(member => (
-                            <ListItem key={member.uid}>
-                                <ListItemText inset primary={member.firstName + ' ' + member.lastName + (member.owner ? ' (Owner)' : '')} />
+                        {roomData.members !== undefined ? Object.keys(roomData.members).map(uid => (
+                            <ListItem key={uid}>
+                                <MemberListItemText owner={false} uid={uid} firebase={this.props.firebase} />
                             </ListItem>
-                        ))}
+                        )) : null}
                     </List>
                 </Collapse>
             </div>
-        ))}
-    </List>
-);
+        );
+    }
+}
+
+class MemberListItemText extends Component {
+    constructor(props) {
+        super(props);
+
+        this.userRef = this.props.firebase.user(this.props.uid);
+
+        this.state = {
+            memberData: {},
+        };
+    }
+
+    componentDidMount() {
+        this.userRef.on('value', snapshot => {
+            let memberData = snapshot.val();
+            this.setState({ memberData });
+        });
+    }
+
+    componentWillUnmount() {
+        this.userRef.off();
+    }
+
+    render() {
+        const { owner } = this.props;
+        const { memberData } = this.state;
+        return (
+            <ListItemText inset primary={(owner ? 'Owner: ' : '') + memberData.name} />
+        );
+    }
+}
 
 const RoomsList = compose(
     withAuth,

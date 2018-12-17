@@ -59,9 +59,8 @@ class CreateBase extends Component {
 
         // TODO(Urgent): Make sure class code is not the same as someone else's
         this.props.firebase
-            .userRooms(this.props.authUser.uid)
-            .push({
-                code,
+            .userRoom(this.props.authUser.uid, code)
+            .set({
                 owner: true,
             })
             .then(() => {
@@ -69,23 +68,13 @@ class CreateBase extends Component {
                     .set({
                         name,
                         description,
+                        owner: this.props.authUser.uid,
                     })
                     .then(() => {
-                        this.props.firebase.globalRoomMembers(code)
-                            .push({
-                                uid: this.props.authUser.uid,
-                                owner: true,
-                            })
-                            .then(() => {
-                                this.setState({ ...INITIAL_STATE });
-                                //this.setState({ open: false }); // Needed for the dialog box
-                                this.setState({ success: 'Successfully created room.' });
-                                this.props.history.push(ROUTES.ROOMS);
-                            })
-                            .catch(error => {
-                                this.setState({ success: '' });
-                                this.setState({ error });
-                            });
+                        this.setState({ ...INITIAL_STATE });
+                        //this.setState({ open: false }); // Needed for the dialog box
+                        this.setState({ success: 'Successfully created room.' });
+                        this.props.history.push(ROUTES.ROOMS);
                     })
                     .catch(error => {
                         this.setState({ success: '' });

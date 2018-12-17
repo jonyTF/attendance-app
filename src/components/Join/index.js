@@ -34,39 +34,43 @@ class JoinFormBase extends Component {
     onSubmit = event => {
         const { code } = this.state;
 
+        const { authUser } = this.props;
+
         // TODO(Urgent): Make it so you can't join your own room
         this.props.firebase.globalRooms().once('value', snapshot => {
-            if (snapshot.child(code).exists()) {
-                this.props.firebase
-                    .userRooms(this.props.authUser.uid)
-                    .push({
-                        code,
-                        owner: false,
-                    })
-                    .then(() => {
-                        this.props.firebase.globalRoomMembers(code)
-                            .push({
-                                uid: this.props.authUser.uid,
+            if (!snapshot.hasChild(code)) {
+                this.setState({ error: { message: 'The room you entered does not exist.' } });
+            } else {
+                this.props.firebase.userRooms(authUser.uid).once('value', snapshot => {
+                    if (snapshot.hasChild(code)) {
+                        this.setState({ error: { message: 'You can\'t join a room you are already in!' } });
+                    } else {
+                        this.props.firebase
+                            .userRoom(authUser.uid, code)
+                            .set({
                                 owner: false,
                             })
                             .then(() => {
-                                this.setState({ ...INITIAL_STATE });
-                                this.setState({ success: 'Successfully joined room.' });
-                                this.props.history.push(ROUTES.ROOMS);
+                                this.props.firebase.globalRoomMember(authUser.uid, code)
+                                    .set(true)
+                                    .then(() => {
+                                        this.setState({ ...INITIAL_STATE });
+                                        this.setState({ success: 'Successfully joined room.' });
+                                        this.props.history.push(ROUTES.ROOMS);
+                                    })
+                                    .catch(error => {
+                                        this.setState({ success: '' });
+                                        this.setState({ error });
+                                    });
                             })
-                            .catch(error => {
+                            .catch((error) => {
                                 this.setState({ success: '' });
                                 this.setState({ error });
                             });
-                    })
-                    .catch((error) => {
-                        this.setState({ success: '' });
-                        this.setState({ error });
-                    });
-            } else {
-                this.setState({ error: { message: 'The room you entered does not exist.' } });
+                    }
+                });
             }
-        })
+        });
 
         event.preventDefault();
     };
