@@ -2,6 +2,7 @@ import firebase from 'firebase';
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
+import 'firebase/messaging';
 import { isMobile } from 'react-device-detect';
 
 const config = {
@@ -18,6 +19,7 @@ class Firebase {
         app.initializeApp(config);
         this.auth = app.auth();
         this.db = app.database();
+        this.messaging = app.messaging();
     }
 
     // *** Auth API ***
