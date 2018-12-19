@@ -57,34 +57,51 @@ class RoomsListBase extends Component {
             this.setState({ ownedRooms, rooms, openState });
         });
 
-        /*
-
         // TODO: Make this apply universally to the whole app (e.g. put it in the App index.js)
         this.props.firebase.messaging.onTokenRefresh(() => {
+            this.props.firebase.messaging
+                .getToken()
+                .then(token => {
+                    this.updateToken(token);
+                });
             console.log('Token was refreshed!');
-        }).catch(error => {
-            console.log('unable to retrieve refreshed token: ', error);
         });
 
         this.props.firebase
-            .doGetMessagingToken()
+            .doRequestNotificationPermission()
+            .then(() => {
+                console.log('aGot notification permission!');
+                return this.props.firebase.messaging.getToken();
+            })
             .then((token) => {
-                if (token) {
-
-                } else {
-                    this.props.firebase
-                        .doRequestNotificationPermission()
-                        .then(() => {
-                            console.log('Got notification permission!');
-                        }).catch((error) => {
-                            console.log('Failed to get notification permission: ', error);
-                        });
-                }
-            }).catch(error => {
-                console.log('Failed to retrieve token: ', error);
+                console.log(token);
+                this.updateToken(token);
+            })
+            .catch(error => {
+                console.log(error);
+                this.updateToken(null);
             });
 
+        this.props.firebase.messaging.onMessage(payload => {
+            console.log('onMessage: ', payload);
+        });
+
+        /*
+        curl -X POST -H "Authorization: key=AAAAZO0uiwg:APA91bHaIR-gx_tnCbTEITYTXBufw0AWStRr7FrpcvO8BmKGIU2LO0S3F5yrV55Im7r2xpe4Ii6cVPxitImjOS-ewGJd0esbYnh5lQ1q4bVLi666z5_mlIMkHIfik6LGz3IDB6cxo6Ga" -H "Content-Type: application/json" -d '{
+            "notification": {
+                "title": "FCM Message",
+                "body": "This is an FCM Message",
+            },
+            "to": "d_iRcsmMs90:APA91bHw2rp9hkc8Q0LFjCriB10cuMc8LIxAc2fZmGHzlbRm3AQH_ucBOXBSJenN6DXEHmtnbHqemUIxTO9Sm3XxHoaGmb_8xmhJyG3INl7f-w29zPZ5qybXzyfu-ePbQMYg5HljBqGl"
+        }' https://fcm.googleapis.com/fcm/send
         */
+    }
+
+    updateToken(token) {
+        this.props.firebase
+            .user(this.props.authUser.uid)
+            .child('token')
+            .set(token);
     }
 
     componentWillUnmount() {

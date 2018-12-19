@@ -60,6 +60,8 @@ class Firebase {
     doGetRedirectResult = () =>
         this.auth.getRedirectResult();
 
+    // *** Messasging API ***
+
     doRequestNotificationPermission = () =>
         this.messaging.requestPermission();
 
@@ -68,7 +70,7 @@ class Firebase {
 
     messaging = () => this.messaging;
 
-    // *** User API ***
+    // *** Database API ***
 
     user = uid => this.db.ref(`users/${uid}`);
 
