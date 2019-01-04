@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { compose } from 'recompose';
-import { Collapse, List, ListItem, ListItemText } from '@material-ui/core';
+import { Avatar, Button, Card, CardActions, CardContent, CardHeader, Collapse, IconButton, List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import withStyles from '@material-ui/core/styles/withStyles';
-import { ExpandLess, ExpandMore } from '@material-ui/icons';
+import { ExpandLess, ExpandMore, HowToReg, MoreVert } from '@material-ui/icons';
 
 import { withAuth, withAuthorization } from '../Session';
 import { withFirebase } from '../Firebase';
@@ -18,8 +18,19 @@ const styles = theme => ({
     root: {
         width: '100%',
         backgroundColor: theme.palette.background.paper,
-    }
+    },
+    expand: {
+        marginLeft: 'auto',
+    },
+    leftIcon: {
+        marginRight: theme.spacing.unit,
+    },
+    button: {
+        margin: theme.spacing.unit,
+    },
 });
+
+var roomsList = {};
 
 class RoomsListBase extends Component {
     constructor(props) {
@@ -58,7 +69,7 @@ class RoomsListBase extends Component {
         });
 
         // TODO: Make this apply universally to the whole app (e.g. put it in the App index.js)
-        this.props.firebase.messaging.onTokenRefresh(() => {
+        /*this.props.firebase.messaging.onTokenRefresh(() => {
             this.props.firebase.messaging
                 .getToken()
                 .then(token => {
@@ -84,7 +95,7 @@ class RoomsListBase extends Component {
 
         this.props.firebase.messaging.onMessage(payload => {
             console.log('onMessage: ', payload);
-        });
+        });*/
 
         /*
         curl -X POST -H "Authorization: key=AAAAZO0uiwg:APA91bHaIR-gx_tnCbTEITYTXBufw0AWStRr7FrpcvO8BmKGIU2LO0S3F5yrV55Im7r2xpe4Ii6cVPxitImjOS-ewGJd0esbYnh5lQ1q4bVLi666z5_mlIMkHIfik6LGz3IDB6cxo6Ga" -H "Content-Type: application/json" -d '{
@@ -118,21 +129,31 @@ class RoomsListBase extends Component {
         this.setState({ openState });
     };
 
-    takeAttendance = () => {
-        fetch('https://fcm.googleapis.com/fcm/send', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'key='+process.env.REACT_APP_SERVER_KEY,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                notification: {
-                    title: 'Test',
-                    body: 'This is a test',
-                },
-                to: 'cf0YpKnB94o:APA91bHIi24kDExmj8ZkU9u1f_eF1LFBGIL1ozBj3_5f5oMXZdeBtG-zTwEQ8try1Pbe9tvWyW8yOlybjFSrVE85dZP6MBvO2Z1-ngByt7a1Dhmo6Asv0eE2u6cqTOSdSwZCNqaXLqxC'
-            })
-        });
+    takeAttendance = (roomCode) => {
+        for (let user in roomsList[roomCode]) {
+            if (roomsList[roomCode][user].token !== undefined) {
+                fetch('https://fcm.googleapis.com/fcm/send', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'key=AAAAZO0uiwg:APA91bHaIR-gx_tnCbTEITYTXBufw0AWStRr7FrpcvO8BmKGIU2LO0S3F5yrV55Im7r2xpe4Ii6cVPxitImjOS-ewGJd0esbYnh5lQ1q4bVLi666z5_mlIMkHIfik6LGz3IDB6cxo6Ga',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        notification: {
+                            title: 'Taking attendance',
+                            body: 'You\'d better open this app'
+                        },
+                        "data": {
+                            "title": "FCM Message",
+                            "body": "This is an FCM Message",
+                        },
+                        "to": roomsList[roomCode][user].token
+                    })
+                });
+            } else {
+
+            }
+        }
     }
 
     render() {
@@ -177,10 +198,11 @@ class RoomsListComponent extends Component {
     render() {
         const { classes, rooms, onClick, openState, isOwner, takeAttendance } = this.props;
         return (
-            <List className={classes.root}>
+            <div>
                 {rooms.map((room) => (
                     <div key={room.id}>
-                        <RoomListItem 
+                        <RoomCard 
+                            classes={classes}
                             onClick={onClick} 
                             room={room} 
                             openState={openState} 
@@ -190,12 +212,12 @@ class RoomsListComponent extends Component {
                         />
                     </div>
                 ))}
-            </List>
+            </div>
         );
     }
 }
 
-class RoomListItem extends Component {
+class RoomCard extends Component {
     constructor(props) {
         super(props);
 
@@ -218,30 +240,56 @@ class RoomListItem extends Component {
     }
 
     render() {
-        const { onClick, room, openState, isOwner, takeAttendance } = this.props;
+        const { classes, onClick, room, openState, isOwner, takeAttendance } = this.props;
         const { roomData } = this.state;
 
         return (
-            <div>
-                <ListItem button onClick={event => onClick(event, room.id)}>
-                    <ListItemText
-                        primary={roomData.name}
-                        secondary={roomData.description}
-                    />
-                    <ListItemText
-                        primary={<strong style={{fontFamily: 'Courier New, Courier, monospace'}}>{room.code}</strong>}
-                    />
-                    {openState[room.id] ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
+            <Card>
+                <CardHeader
+                    avatar={
+                        <Avatar>{roomData.name ? roomData.name.charAt(0) : ''}</Avatar>
+                    }
+                    action={
+                        <IconButton>
+                            <MoreVert />
+                        </IconButton>
+                    }
+                    title={roomData.name}
+                    subheader={'Owner: ' + roomData.owner}
+                />
+                <CardContent>
+                    <Typography>
+                        {roomData.description}
+                    </Typography>
+                    <Typography>
+                        <strong style={{fontFamily: 'Courier New, Courier, monospace'}}>{room.code}</strong>
+                    </Typography>
+                </CardContent>
+                <CardActions>
+                    {isOwner
+                        ?
+                            <div>
+                                <Button
+                                    onClick={() => takeAttendance(this.props.room.code)}
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.button}
+                                >
+                                    <HowToReg className={classes.leftIcon} />
+                                    Take Attendance
+                                </Button>
+                            </div>
+                        : null
+                    }
+                    <IconButton
+                        className={classes.expand}
+                        onClick={event => onClick(event, room.id)}
+                    >
+                        {openState[room.id] ? <ExpandLess /> : <ExpandMore />}
+                    </IconButton>
+                </CardActions>
                 <Collapse in={openState[room.id]} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        {isOwner /* TODO: Make this button more conspicuous */
-                            ? 
-                                <ListItem button onClick={takeAttendance}>
-                                    <ListItemText primary="Take Attendance"/>
-                                </ListItem>
-                            : null
-                        }
                         <ListItem>
                             <MemberListItemText owner={true} uid={roomData.owner} firebase={this.props.firebase} />
                         </ListItem>
@@ -250,12 +298,12 @@ class RoomListItem extends Component {
                         </ListItem>
                         {roomData.members !== undefined ? Object.keys(roomData.members).map(uid => (
                             <ListItem key={uid}>
-                                <MemberListItemText owner={false} uid={uid} firebase={this.props.firebase} />
+                                <MemberListItemText owner={false} roomCode={this.props.room.code} uid={uid} firebase={this.props.firebase} />
                             </ListItem>
                         )) : null}
                     </List>
                 </Collapse>
-            </div>
+            </Card>
         );
     }
 }
@@ -275,6 +323,13 @@ class MemberListItemText extends Component {
         this.userRef.on('value', snapshot => {
             let memberData = snapshot.val();
             this.setState({ memberData });
+
+            if (!this.props.owner) {
+                if (!roomsList[this.props.roomCode]) {
+                    roomsList[this.props.roomCode] = {};
+                }
+                roomsList[this.props.roomCode][this.props.uid] = memberData;
+            }
         });
     }
 
