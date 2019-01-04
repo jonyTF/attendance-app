@@ -2,13 +2,13 @@
 // These scripts are made available when the app is served or deployed on Firebase Hosting
 // If you do not serve/host your project using Firebase Hosting see https://firebase.google.com/docs/web/setup
 
-/*
+
 importScripts('/__/firebase/5.5.6/firebase-app.js');
 importScripts('/__/firebase/5.5.6/firebase-messaging.js');
 importScripts('/__/firebase/init.js');
 
 var messaging = firebase.messaging();
-*/
+
 
 /**
  * Here is is the code snippet to initialize Firebase Messaging in the Service
@@ -18,6 +18,8 @@ var messaging = firebase.messaging();
  // Note that you can only use Firebase Messaging here, other Firebase libraries
  // are not available in the service worker.
 */
+
+/*
 
  importScripts('https://www.gstatic.com/firebasejs/4.8.1/firebase-app.js');
  importScripts('https://www.gstatic.com/firebasejs/4.8.1/firebase-messaging.js');
@@ -30,7 +32,7 @@ var messaging = firebase.messaging();
  // messages.
  const messaging = firebase.messaging();
  // [END initialize_firebase_in_sw]
-
+*/
 
 // If you would like to customize notifications that are received in the
 // background (Web app is closed or not in browser focus) then you should
@@ -39,11 +41,14 @@ var messaging = firebase.messaging();
 messaging.setBackgroundMessageHandler(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
-  var notificationTitle = 'Background Message Title';
+
+  var notificationTitle = 'Background Message lol';
   var notificationOptions = {
-    body: 'Background Message body.',
+    body: 'what',
     icon: '/firebase-logo.png'
   };
+
+
 
   return self.registration.showNotification(notificationTitle,
     notificationOptions);
