@@ -119,7 +119,20 @@ class RoomsListBase extends Component {
     };
 
     takeAttendance = () => {
-
+        fetch('https://fcm.googleapis.com/fcm/send', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'key='+process.env.REACT_APP_SERVER_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                notification: {
+                    title: 'Test',
+                    body: 'This is a test',
+                },
+                to: 'cf0YpKnB94o:APA91bHIi24kDExmj8ZkU9u1f_eF1LFBGIL1ozBj3_5f5oMXZdeBtG-zTwEQ8try1Pbe9tvWyW8yOlybjFSrVE85dZP6MBvO2Z1-ngByt7a1Dhmo6Asv0eE2u6cqTOSdSwZCNqaXLqxC'
+            })
+        });
     }
 
     render() {
