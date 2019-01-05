@@ -2,7 +2,7 @@ import firebase from 'firebase';
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
-import 'firebase/messaging';
+//import 'firebase/messaging';
 import { isMobile } from 'react-device-detect';
 
 const config = {
@@ -19,7 +19,7 @@ class Firebase {
         app.initializeApp(config);
         this.auth = app.auth();
         this.db = app.database();
-        this.messaging = app.messaging();
+        //this.messaging = app.messaging();
     }
 
     // *** Auth API ***
@@ -60,15 +60,15 @@ class Firebase {
     doGetRedirectResult = () =>
         this.auth.getRedirectResult();
 
-    // *** Messasging API ***
+    // *** Messaging API ***
 
-    doRequestNotificationPermission = () =>
+    /*doRequestNotificationPermission = () =>
         this.messaging.requestPermission();
 
     doGetMessagingToken = () =>
         this.messaging.getToken();
 
-    messaging = () => this.messaging;
+    messaging = () => this.messaging;*/
 
     // *** Database API ***
 

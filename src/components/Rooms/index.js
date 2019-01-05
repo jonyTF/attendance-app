@@ -106,14 +106,34 @@ class RoomsListBase extends Component {
             "to": "d_iRcsmMs90:APA91bHw2rp9hkc8Q0LFjCriB10cuMc8LIxAc2fZmGHzlbRm3AQH_ucBOXBSJenN6DXEHmtnbHqemUIxTO9Sm3XxHoaGmb_8xmhJyG3INl7f-w29zPZ5qybXzyfu-ePbQMYg5HljBqGl"
         }' https://fcm.googleapis.com/fcm/send
         */
+
+        /*
+        curl -X POST -H "Authorization: key=AAAAZO0uiwg:APA91bHaIR-gx_tnCbTEITYTXBufw0AWStRr7FrpcvO8BmKGIU2LO0S3F5yrV55Im7r2xpe4Ii6cVPxitImjOS-ewGJd0esbYnh5lQ1q4bVLi666z5_mlIMkHIfik6LGz3IDB6cxo6Ga" -H "Content-Type: application/json" -H "project_id: 433475980040" -d '{
+            "operation": "create",
+            "notification_key_name": "test",
+            "registration_ids": ["d_iRcsmMs90:APA91bHw2rp9hkc8Q0LFjCriB10cuMc8LIxAc2fZmGHzlbRm3AQH_ucBOXBSJenN6DXEHmtnbHqemUIxTO9Sm3XxHoaGmb_8xmhJyG3INl7f-w29zPZ5qybXzyfu-ePbQMYg5HljBqGl"]
+        }' https://fcm.googleapis.com/fcm/notification
+        */
+
+        /*
+        curl -X POST -H "Authorization: key=AAAAZO0uiwg:APA91bHaIR-gx_tnCbTEITYTXBufw0AWStRr7FrpcvO8BmKGIU2LO0S3F5yrV55Im7r2xpe4Ii6cVPxitImjOS-ewGJd0esbYnh5lQ1q4bVLi666z5_mlIMkHIfik6LGz3IDB6cxo6Ga" -H "Content-Type: application/json" -d '{
+            "message": {
+                "topic" : "4y44gq",
+                "notification": {
+                "body": "This is a Firebase Cloud Messaging Topic Message!",
+                "title": "FCM Message"
+                }
+            }
+        }' https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send HTTP/1.1
+        */
     }
 
-    updateToken(token) {
+    /*updateToken(token) {
         this.props.firebase
             .user(this.props.authUser.uid)
             .child('token')
             .set(token);
-    }
+    }*/
 
     componentWillUnmount() {
         this.userRoomsRef.off();
@@ -130,7 +150,7 @@ class RoomsListBase extends Component {
     };
 
     takeAttendance = (roomCode) => {
-        for (let user in roomsList[roomCode]) {
+        /*for (let user in roomsList[roomCode]) {
             if (roomsList[roomCode][user].token !== undefined) {
                 fetch('https://fcm.googleapis.com/fcm/send', {
                     method: 'POST',
@@ -153,7 +173,26 @@ class RoomsListBase extends Component {
             } else {
 
             }
-        }
+        }*/
+        fetch('https://fcm.googleapis.com/v1/projects/attendance-app-dev/messages:send', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer fb5WdopocGQ9N0fBmR8MFxIvtJ8NhGiiwlITpJmc',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                topic: '4y44gq',
+                notification: {
+                    body: 'body body',
+                    title: 'IMPORTANT'
+                }
+            })
+        }).then(response => response.json())
+        .then(data => {
+            console.log(data);
+        }).catch(err => {
+            console.log(err);
+        });
     }
 
     render() {
